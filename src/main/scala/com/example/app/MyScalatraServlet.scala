@@ -17,7 +17,7 @@ class MyScalatraServlet extends ScalatraServlet with ScalateSupport {
     </html>
   }
   
-  put("/artwork/:art_id/reaction/") {
+  post("/artwork/:art_id/reaction/") {
   val json = ("reaction1" -> (("url" -> ("/artwork/" + params("art_id") + "/reaction/2")) ~ 
       				  ("type" -> "string") ~
       				  ("content" -> "I LIKE THIS ART"))) ~
