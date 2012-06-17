@@ -103,8 +103,7 @@ implicit val formats = DefaultFormats
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     mongoColl.update(oid, $inc("upvotes" -> 1))
     mongoColl.update(oid, $push("upvoters" -> params("user_id")))
-    val u = mongoColl.findOne(oid)
-        pretty(render(u.map(getReactionJson(_)).getOrElse("")))
+    Ok()
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/downvote") {
