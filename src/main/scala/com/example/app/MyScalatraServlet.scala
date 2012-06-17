@@ -18,9 +18,11 @@ class MyScalatraServlet extends ScalatraServlet  {
   
   post("/artwork/:art_id/reaction/") {
   val json = ("reaction1" -> (("url" -> ("/artwork/" + params("art_id") + "/reaction/2")) ~ 
+                ("id" -> "2") ~ 
       				  ("type" -> "string") ~
       				  ("content" -> "I LIKE THIS ART"))) ~
       		 ("reaction2" -> (("url" -> ("/artwork/" + params("art_id") + "/reaction/3")) ~ 
+                ("id" -> "3") ~ 
       				  ("type" -> "string") ~
       				  ("content" -> "I, AS WELL, LIKE THIS ART")))
     params("art_id") match {
