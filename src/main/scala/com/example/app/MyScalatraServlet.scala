@@ -26,24 +26,26 @@ implicit val formats = DefaultFormats
     </html>
   }
   
-  post("/artwork/:art_id/reaction/") {
-     case class Reaction(user_id: String, reaction_type: String, content: String)
+  case class Reaction(user_id: String, reaction_type: String, content: String)
 
+  post("/artwork/:art_id/reaction/") {
       val theReaction = parse(request.body).extract[Reaction]
 
-      val builder = MongoDBObject.newBuilder
-      builder += "user_id" -> theReaction.user_id
-      builder += "artwork_id" -> params("art_id")
-      builder += "reaction_type" -> theReaction.reaction_type
-      builder += "content" -> theReaction.content
-      builder += "upvotes" -> 0
-      builder += "upvoters" -> MongoDBList.newBuilder.result
-      builder += "downvotes" -> 0
-      builder += "downvoters" -> MongoDBList.newBuilder.result
-      builder += "flags" -> 0
-      builder += "flaggers" -> MongoDBList.newBuilder.result
-      val newReaction = builder.result
-      mongoColl += newReaction
+      if (validateReaction(theReaction)) {
+        val builder = MongoDBObject.newBuilder
+        builder += "user_id" -> theReaction.user_id
+        builder += "artwork_id" -> params("art_id")
+        builder += "reaction_type" -> theReaction.reaction_type
+        builder += "content" -> theReaction.content
+        builder += "upvotes" -> 0
+        builder += "upvoters" -> MongoDBList.newBuilder.result
+        builder += "downvotes" -> 0
+        builder += "downvoters" -> MongoDBList.newBuilder.result
+        builder += "flags" -> 0
+        builder += "flaggers" -> MongoDBList.newBuilder.result
+        val newReaction = builder.result
+        mongoColl += newReaction
+      }
 
       val otherReactions = getReactions(theReaction.user_id, params("art_id"))
 
@@ -53,6 +55,10 @@ implicit val formats = DefaultFormats
             ("reaction2" -> getReactionJson(otherReactions(1)))
           pretty(render(json))
       } else Ok()
+  }
+
+  private def validateReaction(reaction: Reaction): Boolean = {
+    !(reaction.content.isEmpty)
   }
 
   private def getReactionJson(dbObj: MongoDBObject) = {
