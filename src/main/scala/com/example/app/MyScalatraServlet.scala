@@ -50,6 +50,9 @@ implicit val formats = DefaultFormats
       val random2 = scala.util.Random.nextInt(totalReactions)
 
       //hideously inefficient--puttin the "hack" in "hackathon"
+      //TODO: filter out users own reactions
+      //      filter out flagged reactions & reactions with too many downvotes
+      //      bubble up higher voted reactions?
       val reaction1 = mongoColl.find.limit(-1).skip(random1).next()
       val reaction2 = mongoColl.find.limit(-1).skip(random2).next()
 
@@ -62,8 +65,8 @@ implicit val formats = DefaultFormats
   }
 
   private def getReactionJson(dbObj: MongoDBObject) = {
-                (("url" -> ("/artwork/" + params("art_id") + "/reaction/" + (dbObj.getAs[String]("user_id") getOrElse("00000")))) ~ 
-                ("id" -> (dbObj.getAs[String]("artwork_id") getOrElse("00000"))) ~ 
+                (("url" -> ("/artwork/" + params("art_id") + "/reaction/" + (dbObj.getAs[String]("_id") getOrElse("00000")))) ~ 
+                ("reaction_id" -> (dbObj.getAs[ObjectId]("_id").map(_.toString) getOrElse("00000"))) ~ 
                 ("reaction_type" -> (dbObj.getAs[String]("reaction_type") getOrElse("string"))) ~
                 ("content" -> (dbObj.getAs[String]("content") getOrElse("00000"))))
   }
