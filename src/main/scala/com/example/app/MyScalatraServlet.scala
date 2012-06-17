@@ -72,11 +72,9 @@ implicit val formats = DefaultFormats
   }
   
   get("/artwork/:art_id/reaction/:reaction_id") {
-  val json = ("type" -> "string") ~
-      				  ("content" -> "THIS IS A REACTION THAT WAS REACTED BY A PATRON")
-    params("reaction_id") match {
-      case "1337" => pretty(render(json))
-    }
+    val o : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
+    val u = mongoColl.findOne(o)
+    pretty(render(u.map(getReactionJson(_)).getOrElse("")))
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/upvote/") {
