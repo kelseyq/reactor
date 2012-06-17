@@ -37,18 +37,15 @@ class MyScalatraServlet extends ScalatraServlet  {
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/upvote/") {
-   	//Ok()
-   	""
+   	Ok()
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/downvote/") {
-   	//Ok()
-   	""
+   	Ok()
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/flag/") {
-   	//Ok()
-   	""
+   	Ok()
   }
 
 }

@@ -1,3 +1,5 @@
+import com.typesafe.startscript.StartScriptPlugin
+
 organization := "com.example"
 
 name := "scalatra-sbt-prototype"
@@ -15,8 +17,11 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra-specs2" % "2.0.4" % "test",  
   "ch.qos.logback" % "logback-classic" % "1.0.0" % "runtime",
   "org.eclipse.jetty" % "jetty-webapp" % "8.1.0.RC5" % "container",
+    "org.eclipse.jetty" % "jetty-webapp" % "8.1.0.RC5" % "compile",
    "net.liftweb" %% "lift-json" % "2.4-M4",
    "com.mongodb.casbah" %% "casbah" % "3.0.0-SNAPSHOT"
    )
 
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+
+seq(StartScriptPlugin.startScriptForClassesSettings: _*)
