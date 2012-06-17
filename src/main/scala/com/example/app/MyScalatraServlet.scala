@@ -1,13 +1,12 @@
 package com.example.app
 
 import org.scalatra._
-//import org.scalatra.ActionResult._
-import scalate.ScalateSupport
+import org.scalatra.ActionResult
 import net.liftweb.json._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.Serialization.{read, write}
 
-class MyScalatraServlet extends ScalatraServlet with ScalateSupport {
+class MyScalatraServlet extends ScalatraServlet  {
 
   get("/") {
     <html>
@@ -51,14 +50,7 @@ class MyScalatraServlet extends ScalatraServlet with ScalateSupport {
    	//Ok()
    	""
   }
-  
-  notFound {
-    // Try to render a ScalateTemplate if no route matched
-    findTemplate(requestPath) map { path =>
-      contentType = "text/html"
-      layoutTemplate(path)
-    } orElse serveStaticResource() getOrElse resourceNotFound() 
-  }
+
 }
 
 /* (("url" -> ("/artwork/" + params("art_id")) + "/reaction/2") ~ 
