@@ -11,8 +11,9 @@ import scala.util.Properties
 
 class MyScalatraServlet extends ScalatraServlet  {
 
-val mongoConn: MongoConnection = MongoConnection(Properties.envOrElse("MONGOHQ_URL", "localhost:27017")) 
-val mongoColl = mongoConn("reactor")("test_data")
+val collName = "reactor_data" // <= set your collection name.
+val MongoSetting(db) = Properties.envOrNone("MONGOHQ_URL")
+val mongoColl: MongoCollection = db(collName)
 
 implicit val formats = DefaultFormats
 
@@ -89,6 +90,16 @@ implicit val formats = DefaultFormats
 
 }
 
-/* (("url" -> ("/artwork/" + params("art_id")) + "/reaction/2") ~ 
-      				  ("type" -> "string") ~
-      				  ("content" -> "I LIKE THIS ART")) */
+object MongoSetting {
+  def unapply(url: Option[String]): Option[MongoDB] = {
+    val regex = """mongodb://(\w+):(\w+)@([\w|\.]+):(\d+)/(\w+)""".r
+    url match {
+      case Some(regex(u, p, host, port, dbName)) =>
+        val db = MongoConnection(host, port.toInt)(dbName)
+        db.authenticate(u,p)
+        Some(db)
+      case None =>
+        Some(MongoConnection("localhost", 27017)("reactor_test"))
+    }
+  }
+}
