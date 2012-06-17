@@ -45,7 +45,7 @@ implicit val formats = DefaultFormats
       val newReaction = builder.result
       mongoColl += newReaction
 
-      val otherReactions = getReactions(theReaction.user_id)
+      val otherReactions = getReactions(theReaction.user_id, params("art_id"))
 
       if (!otherReactions.isEmpty) {
           val json =
@@ -63,7 +63,9 @@ implicit val formats = DefaultFormats
                 ("content" -> (dbObj.getAs[String]("content") getOrElse("00000")))) 
   }
 
-  private def getReactions(reacting_user: String): List[MongoDBObject] = {
+  def artworkFilter(artwork_id: String) = MongoDBObject("artwork_id" -> artwork_id)
+
+  private def getReactions(reacting_user: String, artwork_id: String): List[MongoDBObject] = {
       //hideously inefficient--puttin the "hack" in "hackathon"
       //TODO: filter out flagged reactions & reactions with too many downvotes
       //      bubble up higher voted reactions? 
@@ -90,14 +92,6 @@ implicit val formats = DefaultFormats
     pretty(render(u.map(getReactionJson(_)).getOrElse("")))
   }
 
-  get("/artwork/:art_id/reactions/") {
-    val o : DBObject = MongoDBObject("artwork_id" -> params("art_id"))
-
-    val reactions = mongoColl.find(o).toList.map(getReactionJson(_))
-
-    pretty(render(reactions))
-  }
-
   post("/admin/clear/") {
     mongoColl.dropCollection
     Ok()
@@ -109,7 +103,8 @@ implicit val formats = DefaultFormats
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     mongoColl.update(oid, $inc("upvotes" -> 1))
     mongoColl.update(oid, $push("upvoters" -> params("user_id")))
-    Ok()
+    val u = mongoColl.findOne(oid)
+        pretty(render(u.map(getReactionJson(_)).getOrElse("")))
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/downvote") {
@@ -124,6 +119,20 @@ implicit val formats = DefaultFormats
     mongoColl.update(oid, $inc("flags" -> 1))
     mongoColl.update(oid, $push("flaggers" -> params("user_id")))
     Ok()
+  }
+
+  get("/artwork/:art_id/reactions/") {
+    val reactions = mongoColl.find(artworkFilter(params("art_id"))).toList.map(getReactionJson(_))
+
+    pretty(render(reactions))
+  }
+
+  get("/artwork/:art_id/top") {
+    val o : DBObject = MongoDBObject("artwork_id" -> params("art_id"))
+
+    val winners = mongoColl.find(o).sort(MongoDBObject("upvotes" -> -1)).limit(params.get("number").getOrElse("1").toInt).toList.map(getReactionJson(_))
+
+    pretty(render(winners))
   }
 
 }
