@@ -68,7 +68,7 @@ implicit val formats = DefaultFormats
       //TODO: filter out flagged reactions & reactions with too many downvotes
       //      bubble up higher voted reactions? 
 
-      val filter = ("user_id" $ne reacting_user)
+      val filter = ("user_id" $ne 0) //("user_id" $ne reacting_user)
 
       val otherReactions = mongoColl.find(filter)
       val totalReactions = otherReactions.count.toInt
