@@ -6,10 +6,12 @@ import net.liftweb.json._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.Serialization.{read, write}
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.MongoURI
+import scala.util.Properties
 
 class MyScalatraServlet extends ScalatraServlet  {
 
-val mongoConn: MongoConnection = MongoConnection() 
+val mongoConn: MongoConnection = MongoConnection(Properties.envOrElse("MONGOHQ_URL", "localhost:27017")) 
 val mongoColl = mongoConn("reactor")("test_data")
 
 implicit val formats = DefaultFormats
