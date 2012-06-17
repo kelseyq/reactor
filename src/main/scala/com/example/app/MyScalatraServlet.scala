@@ -45,40 +45,54 @@ implicit val formats = DefaultFormats
       val newReaction = builder.result
       mongoColl += newReaction
 
-      val otherReactions = getReactions
+      val otherReactions = getReactions(theReaction.user_id)
 
-      val json =
-           ("reaction1" -> getReactionJson(otherReactions(0))) ~
-           ("reaction2" -> getReactionJson(otherReactions(1)))
-
-      pretty(render(json))
+      if (!otherReactions.isEmpty) {
+          val json =
+            ("reaction1" -> getReactionJson(otherReactions(0))) ~
+            ("reaction2" -> getReactionJson(otherReactions(1)))
+          pretty(render(json))
+      } else Ok()
   }
 
   private def getReactionJson(dbObj: MongoDBObject) = {
                 (("url" -> ("/artwork/" + params("art_id") + "/reaction/" + (dbObj.getAs[String]("_id") getOrElse("00000")))) ~ 
                 ("reaction_id" -> (dbObj.getAs[ObjectId]("_id").map(_.toString) getOrElse("00000"))) ~ 
                 ("reaction_type" -> (dbObj.getAs[String]("reaction_type") getOrElse("string"))) ~
-                ("content" -> (dbObj.getAs[String]("content") getOrElse("00000"))))
+                ("user_id" -> (dbObj.getAs[String]("user_id") getOrElse("no id"))) ~
+                ("content" -> (dbObj.getAs[String]("content") getOrElse("00000")))) 
   }
 
-  private def getReactions(): List[MongoDBObject] = {
+  private def getReactions(reacting_user: String): List[MongoDBObject] = {
       //hideously inefficient--puttin the "hack" in "hackathon"
-      //TODO: filter out users own reactions
-      //      filter out flagged reactions & reactions with too many downvotes
-      //      bubble up higher voted reactions?      
-      val totalReactions = mongoColl.count.toInt
-      val random1 = scala.util.Random.nextInt(totalReactions)
-      val random2 = scala.util.Random.nextInt(totalReactions)
+      //TODO: filter out flagged reactions & reactions with too many downvotes
+      //      bubble up higher voted reactions? 
 
-      val reaction1 = mongoColl.find.limit(-1).skip(random1).next()
-      val reaction2 = mongoColl.find.limit(-1).skip(random2).next()
-      List(reaction1, reaction2)
+      val filter = ("user_id" $ne reacting_user)
+
+      val otherReactions = mongoColl.find(filter)
+      val totalReactions = otherReactions.count.toInt
+      if (totalReactions > 1) {
+        val random1 = scala.util.Random.nextInt(totalReactions)
+        val random2 = scala.util.Random.nextInt(totalReactions)
+
+        val reaction1 = mongoColl.find(filter).limit(-1).skip(random1).next()
+        val reaction2 = mongoColl.find(filter).limit(-1).skip(random2).next()
+        List(reaction1, reaction2)
+      } else {
+        List()
+      }
   }
   
   get("/artwork/:art_id/reaction/:reaction_id") {
     val o : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     val u = mongoColl.findOne(o)
     pretty(render(u.map(getReactionJson(_)).getOrElse("")))
+  }
+
+  post("/admin/clear/") {
+    mongoColl.dropCollection
+    Ok()
   }
 
   //todo: validate users, make sure they can only vote once
