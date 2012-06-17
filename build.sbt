@@ -17,9 +17,9 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra-specs2" % "2.0.4" % "test",  
   "ch.qos.logback" % "logback-classic" % "1.0.0" % "runtime",
   "org.eclipse.jetty" % "jetty-webapp" % "8.1.0.RC5" % "container",
-    "org.eclipse.jetty" % "jetty-webapp" % "8.1.0.RC5" % "compile",
+   "org.eclipse.jetty" % "jetty-webapp" % "8.1.0.RC5" % "compile",
    "net.liftweb" %% "lift-json" % "2.4-M4",
-   "com.mongodb.casbah" %% "casbah" % "3.0.0-SNAPSHOT"
+	"com.mongodb.casbah" % "casbah_2.9.0-1" % "2.1.5.0"
    )
 
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
