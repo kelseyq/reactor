@@ -27,9 +27,9 @@ implicit val formats = DefaultFormats
   }
   
   post("/artwork/:art_id/reaction/") {
-    case class Reaction(user_id: String, reaction_type: String, content: String)
+     /* case class Reaction(user_id: String, reaction_type: String, content: String)
 
-   val theReaction = parse(request.body).extract[Reaction]
+      val theReaction = parse(request.body).extract[Reaction]
 
       val builder = MongoDBObject.newBuilder
       builder += "user_id" -> theReaction.user_id
@@ -62,6 +62,8 @@ implicit val formats = DefaultFormats
            ("reaction2" -> getReactionJson(reaction2))
 
       pretty(render(json))
+      */
+      request.body
   }
 
   private def getReactionJson(dbObj: MongoDBObject) = {
@@ -76,17 +78,28 @@ implicit val formats = DefaultFormats
     val u = mongoColl.findOne(o)
     pretty(render(u.map(getReactionJson(_)).getOrElse("")))
   }
-  
-  post("/artwork/:art_id/reaction/:reaction_id/upvote/") {
-   	Ok()
+
+  //todo: validate users, make sure they can only vote once
+
+  post("/artwork/:art_id/reaction/:reaction_id/upvote") {
+    val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
+    mongoColl.update(oid, $inc("upvotes" -> 1))
+    mongoColl.update(oid, $push("upvoters" -> params("user_id")))
+    Ok()
   }
   
-  post("/artwork/:art_id/reaction/:reaction_id/downvote/") {
-   	Ok()
+  post("/artwork/:art_id/reaction/:reaction_id/downvote") {
+    val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
+    mongoColl.update(oid, $inc("downvotes" -> 1))
+    mongoColl.update(oid, $push("downvoters" -> params("user_id")))
+    Ok()
   }
   
-  post("/artwork/:art_id/reaction/:reaction_id/flag/") {
-   	Ok()
+  post("/artwork/:art_id/reaction/:reaction_id/flag") {
+    val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
+    mongoColl.update(oid, $inc("flags" -> 1))
+    mongoColl.update(oid, $push("flaggers" -> params("user_id")))
+    Ok()
   }
 
 }
