@@ -27,7 +27,7 @@ implicit val formats = DefaultFormats
   }
   
   post("/artwork/:art_id/reaction/") {
-     /* case class Reaction(user_id: String, reaction_type: String, content: String)
+     case class Reaction(user_id: String, reaction_type: String, content: String)
 
       val theReaction = parse(request.body).extract[Reaction]
 
@@ -62,8 +62,6 @@ implicit val formats = DefaultFormats
            ("reaction2" -> getReactionJson(reaction2))
 
       pretty(render(json))
-      */
-      request.body
   }
 
   private def getReactionJson(dbObj: MongoDBObject) = {
