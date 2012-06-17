@@ -90,6 +90,14 @@ implicit val formats = DefaultFormats
     pretty(render(u.map(getReactionJson(_)).getOrElse("")))
   }
 
+  get("/artwork/:art_id/reactions/") {
+    val o : DBObject = MongoDBObject("artwork_id" -> params("art_id"))
+
+    val reactions = mongoColl.find(o).toList.map(getReactionJson(_))
+
+    pretty(render(reactions))
+  }
+
   post("/admin/clear/") {
     mongoColl.dropCollection
     Ok()
