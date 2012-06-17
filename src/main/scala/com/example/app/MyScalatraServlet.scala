@@ -31,8 +31,8 @@ implicit val formats = DefaultFormats
       val builder = MongoDBObject.newBuilder
       builder += "user_id" -> theReaction.user_id
       builder += "artwork_id" -> params("art_id")
-      builder += "type" -> theReaction.reaction_type
-      builder += "reaction" -> theReaction.content
+      builder += "reaction_type" -> theReaction.reaction_type
+      builder += "content" -> theReaction.content
       builder += "upvotes" -> 0
       builder += "upvoters" -> MongoDBList.newBuilder.result
       builder += "downvotes" -> 0
@@ -41,18 +41,28 @@ implicit val formats = DefaultFormats
       builder += "flaggers" -> MongoDBList.newBuilder.result
       val newReaction = builder.result
       mongoColl += newReaction
+      
+      val totalReactions = mongoColl.count.toInt
+      val random1 = scala.util.Random.nextInt(totalReactions)
+      val random2 = scala.util.Random.nextInt(totalReactions)
+
+      //hideously inefficient--puttin the "hack" in "hackathon"
+      val reaction1 = mongoColl.find.limit(-1).skip(random1).next()
+      val reaction2 = mongoColl.find.limit(-1).skip(random2).next()
 
 
-      val json = ("reaction1" -> (("url" -> ("/artwork/" + params("art_id") + "/reaction/2")) ~ 
-                ("id" -> "2") ~ 
-                ("reaction_type" -> "string") ~
-                ("content" -> "I LIKE THIS ART"))) ~
-           ("reaction2" -> (("url" -> ("/artwork/" + params("art_id") + "/reaction/3")) ~ 
-                ("id" -> "3") ~ 
-                ("reaction_type" -> "string") ~
-                ("content" -> "I, AS WELL, LIKE THIS ART"))) 
+      val json =
+           ("reaction1" -> getReactionJson(reaction1)) ~
+           ("reaction2" -> getReactionJson(reaction2))
 
       pretty(render(json))
+  }
+
+  private def getReactionJson(dbObj: MongoDBObject) = {
+                (("url" -> ("/artwork/" + params("art_id") + "/reaction/" + (dbObj.getAs[String]("user_id") getOrElse("00000")))) ~ 
+                ("id" -> (dbObj.getAs[String]("artwork_id") getOrElse("00000"))) ~ 
+                ("reaction_type" -> (dbObj.getAs[String]("reaction_type") getOrElse("string"))) ~
+                ("content" -> (dbObj.getAs[String]("content") getOrElse("00000"))))
   }
   
   get("/artwork/:art_id/reaction/:reaction_id") {
