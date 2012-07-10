@@ -1,4 +1,4 @@
-package com.example.app
+package org.zero1.reactor
 
 import org.scalatra._
 import org.scalatra.ActionResult
@@ -9,7 +9,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.MongoURI
 import scala.util.Properties
 
-class MyScalatraServlet extends ScalatraServlet  {
+class ReactorServlet extends ScalatraServlet  {
 
 val collName = "reactor_data" // <= set your collection name.
 val MongoSetting(db) = Properties.envOrNone("MONGOHQ_URL")

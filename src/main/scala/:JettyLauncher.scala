@@ -5,7 +5,7 @@
  */
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.{DefaultServlet, ServletContextHandler}
-import com.example.app.MyScalatraServlet
+import org.zero1.reactor.ReactorServlet
 
 object JettyLauncher {
   def main(args: Array[String]) {
@@ -14,7 +14,7 @@ object JettyLauncher {
     val server = new Server(port)
     val context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS)
 
-    context.addServlet(classOf[MyScalatraServlet], "/*")
+    context.addServlet(classOf[ReactorServlet], "/*")
     context.addServlet(classOf[DefaultServlet], "/");
     context.setResourceBase("src/main/webapp")
 
