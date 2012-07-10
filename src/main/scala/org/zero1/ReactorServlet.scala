@@ -39,8 +39,6 @@ implicit val formats = DefaultFormats
         builder += "content" -> theReaction.content
         builder += "upvotes" -> 0
         builder += "upvoters" -> MongoDBList.newBuilder.result
-        builder += "downvotes" -> 0
-        builder += "downvoters" -> MongoDBList.newBuilder.result
         builder += "flags" -> 0
         builder += "flaggers" -> MongoDBList.newBuilder.result
         val newReaction = builder.result
@@ -76,16 +74,26 @@ implicit val formats = DefaultFormats
       //TODO: filter out flagged reactions & reactions with too many downvotes
       //      bubble up higher voted reactions? 
 
-      val filter = ("user_id" $ne 0) //("user_id" $ne reacting_user)
+      val userFilter = ("user_id" $ne 0) //("user_id" $ne reacting_user)
+      val flagFilter = ("flags" $lt 1) 
+
+      val filter = userFilter ++ artworkFilter(artwork_id) ++ flagFilter
 
       val otherReactions = mongoColl.find(filter)
       val totalReactions = otherReactions.count.toInt
+
       if (totalReactions > 1) {
-        val random1 = scala.util.Random.nextInt(totalReactions)
-        val random2 = scala.util.Random.nextInt(totalReactions)
+        val r = new scala.util.Random
+        val random1 = r.nextInt(totalReactions)
+        var random2 = r.nextInt(totalReactions)
+
+        while (random2 == random1) {
+          random2 = r.nextInt(totalReactions)
+        }
 
         val reaction1 = mongoColl.find(filter).limit(-1).skip(random1).next()
         val reaction2 = mongoColl.find(filter).limit(-1).skip(random2).next()
+
         List(reaction1, reaction2)
       } else {
         List()
@@ -109,13 +117,6 @@ implicit val formats = DefaultFormats
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     mongoColl.update(oid, $inc("upvotes" -> 1))
     mongoColl.update(oid, $push("upvoters" -> params("user_id")))
-    Ok()
-  }
-  
-  post("/artwork/:art_id/reaction/:reaction_id/downvote") {
-    val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
-    mongoColl.update(oid, $inc("downvotes" -> 1))
-    mongoColl.update(oid, $push("downvoters" -> params("user_id")))
     Ok()
   }
   
