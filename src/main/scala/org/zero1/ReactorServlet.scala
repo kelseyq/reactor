@@ -117,14 +117,12 @@ implicit val formats = DefaultFormats
   post("/artwork/:art_id/reaction/:reaction_id/upvote") {
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     mongoColl.update(oid, $inc("upvotes" -> 1))
-    mongoColl.update(oid, $push("upvoters" -> params("user_id")))
     Ok()
   }
   
   post("/artwork/:art_id/reaction/:reaction_id/flag") {
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
     mongoColl.update(oid, $inc("flags" -> 1))
-    mongoColl.update(oid, $push("flaggers" -> params("user_id")))
     Ok()
   }
 
