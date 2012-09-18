@@ -74,7 +74,7 @@ implicit val formats = DefaultFormats
       //TODO: filter out flagged reactions & reactions with too many downvotes
       //      bubble up higher voted reactions? 
 
-      val userFilter = ("user_id" $ne 0) //("user_id" $ne reacting_user)
+      val userFilter = ("user_id" $ne reacting_user) 
       val flagFilter = ("flags" $lt 1) 
 
       val filter = userFilter ++ artworkFilter(artwork_id) ++ flagFilter
