@@ -119,6 +119,13 @@ implicit val formats = DefaultFormats
     mongoColl.update(oid, $inc("upvotes" -> 1))
     Ok()
   }
+
+  //iOS call
+  post("/artwork/:art_id/reaction/:reaction_id/upvote/:user_id/:device_id") {
+    val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
+    mongoColl.update(oid, $inc("upvotes" -> 1))
+    Ok()
+  }
   
   post("/artwork/:art_id/reaction/:reaction_id/flag") {
     val oid : DBObject = MongoDBObject("_id" -> new ObjectId(params("reaction_id")))
