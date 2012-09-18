@@ -64,8 +64,8 @@ implicit val formats = DefaultFormats
                 ("reaction_id" -> (dbObj.getAs[ObjectId]("_id").map(_.toString) getOrElse("00000"))) ~ 
                 ("reaction_type" -> (dbObj.getAs[String]("reaction_type") getOrElse("string"))) ~
                 ("user_id" -> (dbObj.getAs[String]("user_id") getOrElse("no id"))) ~
-                ("content" -> (dbObj.getAs[String]("content") getOrElse("00000")))) ~
-                ("upvotes" -> (dbObj.getAs[Integer]("upvotes") getOrElse(0))) 
+                ("content" -> (dbObj.getAs[String]("content") getOrElse("00000"))) ~
+                ("upvotes" -> (dbObj.getAs[Integer]("upvotes") getOrElse(0)))) 
   }
 
   def artworkFilter(artwork_id: String) = MongoDBObject("artwork_id" -> artwork_id)
